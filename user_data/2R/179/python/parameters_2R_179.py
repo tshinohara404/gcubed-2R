@@ -23,3 +23,4 @@ class Parameters2R179(Parameters):
 
         """
         super().__init__(database=database, base_year=base_year)
+        self.TIM = 0.25
