@@ -1,35 +1,35 @@
-# -*- coding: utf-8 -*-
-"""
-シナリオ: 関税引き上げの影響シミュレーション
-"""
+# run_experiment_US25.py
+from gcubed.model_parameters.parameters import Parameters
+from gcubed.data.database import Database
+from gcubed.runner import Runner
 
-import model_2R_179  # SYMプロセッサで生成されたPythonモジュール（例）
-import matplotlib.pyplot as plt
-import pandas as pd
+# Step 1: データベースとパラメータ校正のセットアップ
+# ※ "path/to/your/database" を実際のデータベースパスに置き換えてください。
+database = Database("path/to/your/database")
+base_year = 2025
 
-def run_tariff_scenario(tariff_increase):
-    # 1. モデルの初期設定・パラメータ設定
-    # ここでは、関税率に相当するパラメータを更新します。
-    # ※パラメータ名は実際のモデル定義に合わせて変更してください。
-    model_2R_179.set_parameter('tariff_rate', tariff_increase)
+# カスタムパラメータクラスを定義します。
+class CustomParameters(Parameters):
+    def __init__(self, database, base_year):
+        super().__init__(database=database, base_year=base_year)
+        # MFN関税率変数 "TIM" を25%に設定
+        self.TIM = 0.25
 
-    # 2. シミュレーション期間の設定（例：2020～2030）
-    start_year = 2025
-    end_year = 2030
+# カスタムパラメータをインスタンス化
+params = CustomParameters(database=database, base_year=base_year)
 
-    # 3. シミュレーションの実行
-    results = model_2R_179.run_simulation(start_year, end_year)
+# Step 2: Runnerオブジェクトを作成して実験を実行
+# Runnerは、ベースライン予測に対してシミュレーション層（ショック）を順次適用し、結果を生成します。
+runner = Runner(params)
 
-    # 4. 結果の整形と表示（例：GDPの推移をプロット）
-    df = pd.DataFrame(results)
-    plt.figure(figsize=(10, 5))
-    plt.plot(df['year'], df['GDP'], marker='o')
-    plt.title('関税引き上げシナリオ：GDPの推移')
-    plt.xlabel('年')
-    plt.ylabel('GDP')
-    plt.grid(True)
-    plt.show()
+# Step 3: 実験を実行（25%関税引き上げの影響をシミュレーション）
+experiment_results = runner.run_experiment()
 
-if __name__ == '__main__':
-    # 例：通常よりも関税率を5%ポイント引き上げた場合のシナリオを実行
-    run_tariff_scenario(tariff_increase=0.05)
+# Step 4: 結果を出力または保存
+print("実験が完了しました。結果は以下の通りです:")
+print(experiment_results)
+
+# 各シミュレーション層のプロジェクションにアクセスする場合:
+all_projections = runner.all_projections
+for i, projection in enumerate(all_projections):
+    print(f"シミュレーション層 {i} のプロジェクション:", projection)
