@@ -14,7 +14,7 @@ def run_tariff_scenario(tariff_increase):
     model_2R_179.set_parameter('tariff_rate', tariff_increase)
 
     # 2. シミュレーション期間の設定（例：2020～2030）
-    start_year = 2020
+    start_year = 2025
     end_year = 2030
 
     # 3. シミュレーションの実行
